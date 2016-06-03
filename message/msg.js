@@ -17,8 +17,9 @@ window.onload = function () {
     function updateUserStatus() {
         var uid = getCookie('uid');
         var username = getCookie('username');
+        //var oUser= cookieName(username);
         if (uid) {
-            uid=1;//用户是在登录状态
+            uid = 1;//用户是在登录状态
             oUser.style.display = 'block';
             oUserInfo.innerHTML = username;
             oReg.style.display = 'none';
@@ -39,12 +40,11 @@ window.onload = function () {
         ajax('get', 'msg/index.php', {
                 m: "index",
                 a: "verifyUserName",
-                username: "this.value"
+                username: this.value
             }
             , function (data) {
                 var oData = JSON.parse(data);
                 oVerifyUserNameMsg.innerHTML = oData.message;
-
                 if (oData.code) {
                     oVerifyUserNameMsg.style.color = 'red';
                 } else {
@@ -76,7 +76,7 @@ window.onload = function () {
         ajax('post', 'msg/index.php', {
             m: "index",
             a: "login",
-            username: encodeURI(oUsername2.value),//this way don't use "'" or "\"",if used the param send like String 
+            username: encodeURI(oUsername2.value),//this way don't use "'" or "\"",if used the param send like String
             password: oPassword2.value
         }, function (data) {
             var oData = JSON.parse(data);
@@ -122,10 +122,17 @@ window.onload = function () {
     }
 
     function createList(data, insert) {
+
         var oDl = document.createElement('dl');
         var oDt = document.createElement('dt');
         var oStrong = document.createElement('strong');
         oStrong.innerHTML = data.username;
+        var oSpan = document.createElement('span');
+        oSpan.innerHTML = '发表于' + '&nbsp;' + getNowFormatDate();
+        oSpan.className = 'date';
+        oStrong.appendChild(oSpan);
+
+
         oDt.appendChild(oStrong);
         var oDd1 = document.createElement('dd');
         oDd1.innerHTML = data.content;
@@ -177,6 +184,7 @@ window.onload = function () {
             } else {
                 if (iPage == 1) {
                     oList.innerHTML = '还没有留言，等你来抢沙发...';
+                    oList.className = "none";
                 }
                 oShowMore.style.display = 'none';
             }
@@ -190,7 +198,30 @@ function getCookie(key) {
     for (var i = 0; i < arr1.length; i++) {
         var arr2 = arr1[i].split('=');
         if (arr2[0] == key) {
-            return arr2[1];
+            if (arr2[0].trim() == key) {
+                return decodeURI(arr2[1]);
+            } else {
+                return arr2[1];
+            }
         }
     }
 }
+
+
+function getNowFormatDate() {
+    var date = new Date();
+    var seperator1 = "-";
+    var seperator2 = ":";
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+        + " " + date.getHours() + seperator2 + date.getMinutes()
+        + seperator2 + date.getSeconds();
+    return currentdate;
+} 
